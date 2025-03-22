@@ -14,7 +14,7 @@ const polutionStates = [
 <div>
     <form id="cityForm">
         <label>Miasto (bez polskich znaków)</label>
-        <input type="text" id="city-name" name="fname" value="torun">
+        <input type="text" id="city-name" name="fname" placeholder="torun">
         <input type="submit" value="Dodaj">
     </form>
 </div>
@@ -25,6 +25,8 @@ const polutionStates = [
 </div>
 
 ```js
+import { getGeoApiKey } from "./keys.js";
+
 const loginForm = document.querySelector("#cityForm");
 loginForm.addEventListener("submit", (e) => {
   e.preventDefault();
@@ -122,48 +124,52 @@ L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
 }).addTo(map);
 
 const API_KEY = getAQApiKey();
-let cities = [
-  {
-    name: "lodz",
-    info: {},
-  },
-  {
-    name: "krakow",
-    info: {},
-  },
-  {
-    name: "wroclaw",
-    info: {},
-  },
-  {
-    name: "Poznan",
-    info: {},
-  },
-  {
-    name: "Gdansk",
-    info: null,
-  },
-  {
-    name: "Szczecin",
-    info: null,
-  },
-  {
-    name: "Bydgoszcz",
-    info: null,
-  },
-  {
-    name: "Lublin",
-    info: null,
-  },
-  {
-    name: "katowice",
-    info: null,
-  },
-  {
-    name: "warsaw",
-    info: null,
-  },
-];
+
+import { getCities } from "./cites.js";
+let cities = getCities();
+console.log(cities);
+// let cities = [
+//   {
+//     name: "lodz",
+//     info: {},
+//   },
+//   {
+//     name: "krakow",
+//     info: {},
+//   },
+//   {
+//     name: "wroclaw",
+//     info: {},
+//   },
+//   {
+//     name: "Poznan",
+//     info: {},
+//   },
+//   {
+//     name: "Gdansk",
+//     info: null,
+//   },
+//   {
+//     name: "Szczecin",
+//     info: null,
+//   },
+//   {
+//     name: "Bydgoszcz",
+//     info: null,
+//   },
+//   {
+//     name: "Lublin",
+//     info: null,
+//   },
+//   {
+//     name: "katowice",
+//     info: null,
+//   },
+//   {
+//     name: "warsaw",
+//     info: null,
+//   },
+// ];
 
 async function json(url) {
   const response = await fetch(url);
