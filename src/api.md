@@ -1,6 +1,8 @@
-# Api report
+# Mapa powietrza
 
 ```js
+import { json } from "./utility.js";
+
 const polutionStates = [
   "Dobra",
   "Średnia",
@@ -13,9 +15,9 @@ const polutionStates = [
 
 <div>
     <form id="cityForm">
-        <label>Miasto (bez polskich znaków)</label>
+        <label>Miasto (bez polskich znaków): </label>
         <input type="text" id="city-name" name="fname" placeholder="torun">
-        <input type="submit" value="Dodaj">
+        <input type="submit" value="Dodaj" id="submit">
     </form>
 </div>
 
@@ -49,14 +51,11 @@ async function addNewCity(city) {
     info: null,
   };
   cities.push(newCity);
-  console.log("cities: ", cities);
 
   let cityInfo = await addCity(newCity);
-  console.log(cityInfo);
   if (cityInfo != null) {
     zoomToLocation(cityInfo.latitude, cityInfo.longitude, 10);
   }
-  console.log(cityInfo);
   updateMessage(cityInfo.polutionState, cityInfo.index);
 }
 
@@ -66,7 +65,6 @@ function updateMessage(polutionState, polutionIndex) {
   const messageDescription = document.querySelector(".description");
 
   messageContainer.className = "";
-  console.log("Polution state: " + polutionState);
 
   let message;
   switch (polutionState) {
@@ -127,55 +125,6 @@ const API_KEY = getAQApiKey();
 
 import { getCities } from "./cites.js";
 let cities = getCities();
-console.log(cities);
-// let cities = [
-//   {
-//     name: "lodz",
-//     info: {},
-//   },
-//   {
-//     name: "krakow",
-//     info: {},
-//   },
-//   {
-//     name: "wroclaw",
-//     info: {},
-//   },
-//   {
-//     name: "Poznan",
-//     info: {},
-//   },
-//   {
-//     name: "Gdansk",
-//     info: null,
-//   },
-//   {
-//     name: "Szczecin",
-//     info: null,
-//   },
-//   {
-//     name: "Bydgoszcz",
-//     info: null,
-//   },
-//   {
-//     name: "Lublin",
-//     info: null,
-//   },
-//   {
-//     name: "katowice",
-//     info: null,
-//   },
-//   {
-//     name: "warsaw",
-//     info: null,
-//   },
-// ];
-
-async function json(url) {
-  const response = await fetch(url);
-  if (!response.ok) throw new Error(`fetch failed: ${response.status}`);
-  return await response.json();
-}
 
 (async function fetchCities() {
   try {
@@ -194,8 +143,7 @@ async function addCity(city) {
     `https://api.waqi.info/feed/${city.name}/?token=${API_KEY}`
   );
   if (station.data && station.data != "Unknown station") {
-    display(station.data);
-    city.name = city.name;
+    // display(station.data);
     city.info = getCityData(station.data);
     if (city.info) {
       const circle = L.circle([city.info.latitude, city.info.longitude], {
@@ -204,6 +152,11 @@ async function addCity(city) {
         fillOpacity: 0.3,
         radius: 7000,
       }).addTo(map);
+
+      circle.on("click", function () {
+        let cityInput = document.querySelector("#city-name");
+        cityInput.value = city.name;
+      });
       return city.info;
     }
   }
@@ -253,8 +206,8 @@ function getCityData(stationData) {
   }
 
   const so2_aqi = calculateAQI(so2, [20, 80, 250]);
-  const no2_aqi = calculateAQI(no2, [50, 100, 150, 200]);
-  const pm10_aqi = calculateAQI(pm10, [50, 100, 150, 200, 300]);
+  const no2_aqi = calculateAQI(no2, [42, 80, 150, 200]);
+  const pm10_aqi = calculateAQI(pm10, [42, 80, 150, 200, 300]);
 
   const maxPolution = Math.max(so2_aqi, no2_aqi, pm10_aqi);
   let color;
@@ -268,11 +221,11 @@ function getCityData(stationData) {
       return 2;
     }
     if (polutionIndex < 200) {
-      color = "#cccc00";
+      color = "#eecc00";
       return 3;
     }
     if (polutionIndex < 300) {
-      color = "#cc9400";
+      color = "#dd9400";
       return 4;
     }
     if (polutionIndex >= 300) {
@@ -283,7 +236,7 @@ function getCityData(stationData) {
     return 6;
   }
 
-  const maxIndex = Math.max(so2 * 2.5, no2, pm10);
+  const maxIndex = Math.max(so2 * 2.1, no2, pm10);
   const currentPolutionState = summarizeAirQuality(maxPolution);
   return {
     color: color,
